@@ -7,6 +7,9 @@ public class Rocket : MonoBehaviour
     AudioSource audioSource;
     [SerializeField] float rcsThrust = 250f;
     [SerializeField] float mainThrust = 1000f;
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] AudioClip winSound;
+    [SerializeField] AudioClip deathSound;
     static private int currentLevel = 0;
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
@@ -23,9 +26,8 @@ public class Rocket : MonoBehaviour
     {
         if (state == State.Alive)
         {
-            //TODO stop sound on death
-            Thrust();
-            Rotate();
+            RespondToThrust();
+            RespondToRotate();
         }
         
     }
@@ -39,14 +41,28 @@ public class Rocket : MonoBehaviour
             case "Friendly":
                 break;
             case "Finish":
-                state = State.Transcending;
-                Invoke("LoadNextScene", 1f); //parameterise time
+                LoadNextLevel();
                 break;
             default:
-                state = State.Dying;
-                Invoke("ResetScene", 1f); //parameterise time
+                ExecuteDeath();
                 break;
         }
+    }
+
+    private void LoadNextLevel()
+    {
+        state = State.Transcending;
+        audioSource.Stop();
+        audioSource.PlayOneShot(winSound);
+        Invoke("LoadNextScene", 1f); //parameterise time
+    }
+
+    private void ExecuteDeath()
+    {
+        state = State.Dying;
+        audioSource.Stop();
+        audioSource.PlayOneShot(deathSound);
+        Invoke("ResetScene", 1f); //parameterise time
     }
 
     private void ResetScene()
@@ -60,15 +76,11 @@ public class Rocket : MonoBehaviour
         SceneManager.LoadScene(currentLevel);
     }
 
-    private void Thrust()
+    private void RespondToThrust()
     {
         if (Input.GetKey(KeyCode.Space)) // can thrust while rotating
         {
-            rigidBody.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
-            if (!audioSource.isPlaying)
-            {
-                audioSource.Play();
-            }
+            ApplyThrust();
         }
         else
         {
@@ -76,7 +88,16 @@ public class Rocket : MonoBehaviour
         }
     }
 
-    private void Rotate()
+    private void ApplyThrust()
+    {
+        rigidBody.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(mainEngine);
+        }
+    }
+
+    private void RespondToRotate()
     {
         rigidBody.freezeRotation = true; //take manual control of rotation
         float rotationThisFrame = rcsThrust * Time.deltaTime;
