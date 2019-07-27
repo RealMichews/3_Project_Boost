@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour
 {
@@ -9,6 +7,9 @@ public class Rocket : MonoBehaviour
     AudioSource audioSource;
     [SerializeField] float rcsThrust = 250f;
     [SerializeField] float mainThrust = 1000f;
+    static private int currentLevel = 0;
+    enum State { Alive, Dying, Transcending }
+    State state = State.Alive;
 
     // Start is called before the first frame update
     void Start()
@@ -29,16 +30,21 @@ public class Rocket : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "Friendly":
-                //do nothing
-                print("OK"); //TODO remove
                 break;
-            case "Fuel":
-                print("You got fuel!");
+            case "Finish":
+                print("You won!");
+                LoadNextScene();
                 break;
             default:
-                print("Ya dead");
+                SceneManager.LoadScene(currentLevel);
                 break;
         }
+    }
+
+    private static void LoadNextScene()
+    {
+        currentLevel++;
+        SceneManager.LoadScene(currentLevel);
     }
 
     private void Thrust()
