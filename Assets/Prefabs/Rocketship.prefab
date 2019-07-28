@@ -159,8 +159,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d4593c8238069142b14db4a68204505, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rcsThrust: 250
-  mainThrust: 1250
+  rcsThrust: 350
+  mainThrust: 2000
   levelLoadDelay: 2
   thrustSound: {fileID: 8300000, guid: a4042558e1488974a850830d50ff6525, type: 3}
   winSound: {fileID: 8300000, guid: e29e2dad6079ed64b8e75e627bb9df29, type: 3}
