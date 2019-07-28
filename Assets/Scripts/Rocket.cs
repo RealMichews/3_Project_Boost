@@ -17,8 +17,7 @@ public class Rocket : MonoBehaviour
     [SerializeField] ParticleSystem thrustParticles;
     [SerializeField] ParticleSystem winParticles;
     [SerializeField] ParticleSystem deathParticles;
-    
-    static private int currentLevel = 0;
+
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
     bool collisionsDisabled = false;
@@ -95,23 +94,19 @@ public class Rocket : MonoBehaviour
 
     private void ResetScene()
     {
-        SceneManager.LoadScene(currentLevel);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void LoadNextScene()
     {
         int nextSceneIndex;
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        if (currentSceneIndex < SceneManager.sceneCountInBuildSettings-1)
-        {
-            nextSceneIndex = currentSceneIndex + 1;
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-        else
-        {
-            nextSceneIndex = 0;
-            SceneManager.LoadScene(nextSceneIndex);
-        }
+       nextSceneIndex = currentSceneIndex + 1;
+       if (nextSceneIndex == SceneManager.sceneCountInBuildSettings)
+       {
+           nextSceneIndex = 0;
+       }
+       SceneManager.LoadScene(nextSceneIndex);
     }
 
     private void RespondToThrust()
