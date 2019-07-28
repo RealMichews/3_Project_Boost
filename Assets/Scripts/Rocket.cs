@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour
@@ -16,10 +17,11 @@ public class Rocket : MonoBehaviour
     [SerializeField] ParticleSystem thrustParticles;
     [SerializeField] ParticleSystem winParticles;
     [SerializeField] ParticleSystem deathParticles;
-
+    
     static private int currentLevel = 0;
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
+    bool collisionsDisabled = false;
 
     // Start is called before the first frame update
     void Start()
@@ -35,13 +37,30 @@ public class Rocket : MonoBehaviour
         {
             RespondToThrust();
             RespondToRotate();
+            
         }
-        
+        //todo only if in developer/debug mode
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebug();
+        }
+    }
+
+    private void RespondToDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextScene();
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionsDisabled = !collisionsDisabled;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (state != State.Alive) { return; } //Ignore Collisions when dead
+        if (state != State.Alive || collisionsDisabled) { return; }
 
         switch (collision.gameObject.tag)
         {
@@ -51,7 +70,7 @@ public class Rocket : MonoBehaviour
                 LoadNextLevel();
                 break;
             default:
-                ExecuteDeath();
+                    ExecuteDeath();
                 break;
         }
     }
@@ -81,8 +100,18 @@ public class Rocket : MonoBehaviour
 
     private void LoadNextScene()
     {
-        currentLevel++;
-        SceneManager.LoadScene(currentLevel);
+        int nextSceneIndex;
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        if (currentSceneIndex < SceneManager.sceneCountInBuildSettings-1)
+        {
+            nextSceneIndex = currentSceneIndex + 1;
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            nextSceneIndex = 0;
+            SceneManager.LoadScene(nextSceneIndex);
+        }
     }
 
     private void RespondToThrust()
